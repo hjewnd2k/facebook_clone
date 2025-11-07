@@ -1,0 +1,20 @@
+server:
+  port: 8080 # Đây là cổng chính mà client sẽ gọi vào
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Gateway cũng cần xác thực token
+          issuer-uri: http://localhost:8888/realms/facebook-clone
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: user_service_route
+              uri: http://localhost:8081
+              predicates:
+                - Path=/api/v1/users/**

@@ -1,0 +1,18 @@
+server:
+  port: 8081 # Service này chạy ở cổng 8081
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8888/realms/facebook-clone
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/user_db
+    username: postgres
+    password: password
+    jpa:
+      hibernate:
+        ddl-auto: update # Tự động tạo/cập nhật bảng khi khởi động
+      show-sql: true # Hiển thị câu lệnh SQL trong log
