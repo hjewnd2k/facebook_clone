@@ -3,15 +3,10 @@ package com.huyhieu.userservice.entity;
 import com.huyhieu.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.FieldDefaults;
-
 import java.time.Instant;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Entity
 @Table(name = "users")
@@ -33,4 +28,10 @@ public class User extends BaseEntity {
   String profilePictureUrl;
 
   String bio;
+
+  public User(String userId, String username) {
+    this.userId = userId;
+    this.username = username;
+    this.displayName = username;
+  }
 }

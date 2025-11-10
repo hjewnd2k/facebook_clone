@@ -13,17 +13,31 @@ services:
       KC_HTTP_ENABLED: true
       KC_LOG_LEVEL: INFO
       KEYCLOAK_FRONTEND_URL: http://localhost:8180
-      KC_DB: postgres
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
       # Trỏ đến CSDL 'keycloak_db' mới
+      KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://db:5432/keycloak_db
       KC_DB_USERNAME: postgres
       KC_DB_PASSWORD: password
+      # 1. Tên topic cho User events (topicEvents)
+      KAFKA_TOPIC: keycloak_user_events
+      # 2. Tên topic cho Admin events (topicAdminEvents)
+      KAFKA_ADMIN_TOPIC: keycloak_admin_events
+      # 3. Địa chỉ Kafka (bootstrapServers)
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      # 4. Tên client ID cho Kafka (clientId)
+      KAFKA_CLIENT_ID: keycloak-producer
+      KAFKA_EVENTS: CREATE,UPDATE,DELETE
     ports:
       - "8888:8080"
+    volumes:
+      # 4. Mount thư mục plugin vào container Keycloak
+      - ./keycloak-plugins:/opt/keycloak/providers
     networks:
       - app-network
     depends_on:
       - db
+      - kafka
 
   db:
     image: postgres:15-alpine
@@ -40,6 +54,38 @@ services:
       - postgres-data:/var/lib/postgresql/data
       # create db keycloak-db
       - ./init-keycloak-db.sh:/docker-entrypoint-initdb.d/init-keycloak-db.sh
+  kafka:
+    image: apache/kafka:4.1.1-rc2
+    container_name: kafka
+    ports:
+      - "9092:9092"   # Broker listener
+      - "9093:9093"   # Controller listener
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8989:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local-kafka-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092  # dùng hostname container
+      KAFKA_CLUSTERS_0_ZOOKEEPER: ""
+    networks:
+      - app-network
+    depends_on:
+      - kafka
+
 
 networks:
   app-network:
