@@ -10,9 +10,10 @@ import lombok.experimental.FieldDefaults;
 
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User extends BaseEntity {
   @Column(name = "user_id")
@@ -21,6 +22,9 @@ public class User extends BaseEntity {
   @Column(unique = true, nullable = false)
   String username; // Tên đăng nhập
 
+  @Column(unique = true, name = "email")
+  String email;
+
   @Column(name = "display_name")
   String displayName;
 
@@ -28,10 +32,4 @@ public class User extends BaseEntity {
   String profilePictureUrl;
 
   String bio;
-
-  public User(String userId, String username) {
-    this.userId = userId;
-    this.username = username;
-    this.displayName = username;
-  }
 }

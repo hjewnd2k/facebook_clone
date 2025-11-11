@@ -5,13 +5,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huyhieu.userservice.dto.response.AdminEventDto;
 import com.huyhieu.userservice.dto.response.KeycloakEventDto;
 import com.huyhieu.userservice.dto.response.UserRepresentationDto;
+import com.huyhieu.userservice.dto.response.UserResponse;
+import com.huyhieu.userservice.entity.FailedEvent;
 import com.huyhieu.userservice.entity.User;
+import com.huyhieu.userservice.enums.EventStatus;
+import com.huyhieu.userservice.repository.FailedEventRepository;
 import com.huyhieu.userservice.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,16 +25,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class KafkaConsumerService {
-  UserRepository userRepository;
   ObjectMapper objectMapper;
+  UserService userService;
+  FailedEventRepository failedEventRepository;
 
-  // === THÊM LISTENER DEBUG NÀY VÀO ===
   @KafkaListener(topics = "keycloak_admin_events")
-  public void handleRawString(String message) {
-    log.warn("DEBUG LISTENER: ĐÃ NHẬN ĐƯỢC STRING: {}", message);
-  }
-
-  @KafkaListener(topics = "keycloak_user_events")
   public void handleAdminEvent(AdminEventDto event) { // 2. SỬA DTO Ở ĐÂY
     log.info(
         "Nhận được Admin Event: {} cho resource: {}",
@@ -60,12 +61,8 @@ public class KafkaConsumerService {
           // 3. Parse JSON lồng nhau
           UserRepresentationDto userDto =
               objectMapper.readValue(event.getRepresentation(), UserRepresentationDto.class);
-          log.info("Xử lý CREATE user: {}", userDto.getUsername());
 
-          User newUser = new User(userId, userDto.getUsername());
-          newUser.setDisplayName(userDto.getFirstName() + " " + userDto.getLastName());
-          userRepository.save(newUser);
-
+          userService.createUserByKeycloakEvent(userId, userDto);
         } catch (JsonProcessingException e) {
           log.error("Lỗi parse 'representation' khi CREATE user", e);
         }
@@ -75,16 +72,8 @@ public class KafkaConsumerService {
         try {
           UserRepresentationDto userDto =
               objectMapper.readValue(event.getRepresentation(), UserRepresentationDto.class);
-          log.info("Xử lý UPDATE user: {}", userDto.getUsername());
 
-          userRepository
-              .findByUserId(userId)
-              .ifPresent(
-                  user -> {
-                    user.setUsername(userDto.getUsername());
-                    user.setDisplayName(userDto.getFirstName() + " " + userDto.getLastName());
-                    userRepository.save(user);
-                  });
+          userService.updateUserByKeycloakEvent(userId, userDto);
 
         } catch (JsonProcessingException e) {
           log.error("Lỗi parse 'representation' khi UPDATE user", e);
@@ -92,13 +81,32 @@ public class KafkaConsumerService {
         break;
 
       case DELETE:
-        log.info("Xử lý DELETE user: {}", userId);
-        userRepository.deleteByUserId(userId);
+        userService.deleteUser(userId);
         break;
 
       default:
         log.warn("OperationType không được xử lý: {}", event.getOperationType());
         break;
+    }
+  }
+
+  @KafkaListener(
+      topics = "keycloak_admin_events-dlt",
+      groupId = "user-service-dlt-group",
+      containerFactory = "dltListenerContainerFactory")
+  public void handleDeadLetterTopic(String message) {
+    log.error("!!! LỖI TỪ DLT (Topic: {}) !!! Đang lưu vào CSDL...", message);
+
+    try {
+      FailedEvent failedEvent =
+          FailedEvent.builder().payload(message).status(EventStatus.PENDING).build();
+
+      failedEventRepository.save(failedEvent);
+      log.info("Đã lưu message lỗi vào CSDL với ID: {}", failedEvent.getId());
+
+    } catch (Exception e) {
+      // Nếu việc LƯU LỖI cũng bị lỗi (ví dụ: CSDL sập)
+      log.error("KHẨN CẤP: Không thể lưu message DLT vào CSDL. Message: {}", message, e);
     }
   }
 }
