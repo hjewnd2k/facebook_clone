@@ -1,0 +1,27 @@
+server:
+  port: 8083
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8888/realms/facebook-clone
+
+  neo4j:
+    uri: bolt://localhost:7687
+    authentication:
+      username: neo4j
+      password: password
+
+springdoc:
+  swagger-ui:
+    oauth:
+      client-id: api-gateway
+      use-pkce-with-authorization-code-grant: true
+      scopes:
+        - openid
+        - profile
+  oauth2:
+    authorization-url: http://localhost:8088/realms/facebook-clone/protocol/openid-connect/auth
+    token-url: http://localhost:8888/realms/facebook-clone/protocol/openid-connect/token

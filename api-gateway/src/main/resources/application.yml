@@ -2,6 +2,9 @@ server:
   port: 8080 # Đây là cổng chính mà client sẽ gọi vào
 
 spring:
+  application:
+    name: api-gateway
+
   security:
     oauth2:
       resourceserver:
@@ -14,11 +17,75 @@ spring:
       server:
         webflux:
           routes:
-            - id: user_service_route
+            - id: user_service
               uri: http://localhost:8081
               predicates:
                 - Path=/api/v1/users/**
-            - id: post_service_route
-              uri: http://post-service:8082
+
+            - id: post_service
+              uri: http://localhost:8082
               predicates:
                 - Path=/api/v1/posts/**
+
+            - id: social_service
+              uri: http://localhost:8083 # (Hoặc social-service:8083)
+              predicates:
+                - Path=/api/v1/social/**
+
+            # --- CÁC ROUTE SWAGGER (MỚI) ---
+            # Route để lấy api-docs của user-service
+            - id: user_service_docs
+              uri: http://localhost:8081 # (Hoặc localhost:8081)
+              predicates:
+                - Path=/v3/api-docs/user-service
+              filters: # <--- THÊM KHỐI NÀY
+                # Viết lại đường dẫn từ /v3/api-docs/user-service
+                # thành /v3/api-docs
+                - RewritePath=/v3/api-docs/user-service, /v3/api-docs
+
+            # Route để lấy api-docs của post-service
+            - id: post_service_docs
+              uri: http://localhost:8082 # (Hoặc localhost:8082)
+              predicates:
+                - Path=/v3/api-docs/post-service
+              filters: # <--- THÊM KHỐI NÀY
+                # Viết lại đường dẫn từ /v3/api-docs/post-service
+                # thành /v3/api-docs
+                - RewritePath=/v3/api-docs/post-service, /v3/api-docs
+
+            - id: social_service_docs
+              uri: http://localhost:8083
+              predicates:
+                - Path=/v3/api-docs/social-service
+              filters:
+                - RewritePath=/v3/api-docs/social-service, /v3/api-docs
+
+  # --- CẤU HÌNH SWAGGER UI TỔNG HỢP ---
+springdoc:
+  swagger-ui:
+    # (Thêm cấu hình OAuth y hệt như của user-service)
+    oauth:
+      client-id: api-gateway
+      use-pkce-with-authorization-code-grant: true
+
+    # Tạo menu thả xuống
+    urls:
+      - name: User Service # Tên hiển thị
+        url: /v3/api-docs/user-service # Đường dẫn mà Gateway đã expose
+      - name: Post Service
+        url: /v3/api-docs/post-service
+      - name: Social Service
+        url: /v3/api-docs/social-service
+
+  oauth2: # (Thêm cấu hình OAuth y hệt như của user-service)
+    authorization-url: http://localhost:8888/realms/facebook-clone/protocol/openid-connect/auth
+    token-url: http://localhost:8888/realms/facebook-clone/protocol/openid-connect/token
+
+logging:
+  level:
+    root: INFO
+    org:
+      springframework:
+        cloud:
+          gateway: TRACE
+          gateway.router.RouteDefinitionLocator: INFO

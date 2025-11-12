@@ -1,5 +1,6 @@
 package com.huyhieu.userservice.controller;
 
+import com.huyhieu.common.dto.response.ApiResponse;
 import com.huyhieu.userservice.dto.response.UserResponse;
 import com.huyhieu.userservice.service.UserService;
 import lombok.AccessLevel;
@@ -22,14 +23,16 @@ public class UserController {
   UserService userService;
 
   @GetMapping("/me")
-  public ResponseEntity<UserResponse> getMyInfo() {
+  public ApiResponse<UserResponse> getMyInfo() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     String userId = authentication.getName();
-    return ResponseEntity.ok(userService.getMyInfo(userId));
+    return ApiResponse.<UserResponse>builder().result(userService.getMyInfo(userId)).build();
   }
 
   @GetMapping("/public/hello")
-  public String helloPublic() {
-    return "Đây là API public, ai cũng xem được (từ User Service)";
+  public ApiResponse<String> helloPublic() {
+    return ApiResponse.<String>builder()
+        .result("Đây là API public, ai cũng xem được (từ User Service)")
+        .build();
   }
 }

@@ -30,3 +30,15 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+springdoc: # <--- THÊM KHỐI NÀY
+  swagger-ui:
+    oauth:
+      client-id: api-gateway # (Hoặc client-id nào bạn dùng để test)
+      use-pkce-with-authorization-code-grant: true
+      scopes:
+        - openid
+        - profile
+  oauth2:
+    authorization-url: http://localhost:8888/realms/facebook-clone/protocol/openid-connect/auth
+    token-url: http://localhost:8888/realms/facebook-clone/protocol/openid-connect/token
