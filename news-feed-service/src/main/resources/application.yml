@@ -1,0 +1,30 @@
+server:
+  port: 8084
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8888/realms/facebook-clone
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: newsfeed-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.value.default.type: com.huyhieu.common.dto.event.PostCreatedEvent
+
+app:
+  services:
+    social-service-url: http://localhost:8083
+    post-service-url: http://localhost:8082

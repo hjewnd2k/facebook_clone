@@ -1,7 +1,7 @@
 package com.huyhieu.postservice.dto.request;
 
 import com.huyhieu.postservice.entity.Media;
-import com.huyhieu.postservice.enums.Visibility;
+import com.huyhieu.common.enums.Visibility;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

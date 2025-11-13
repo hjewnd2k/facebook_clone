@@ -1,4 +1,4 @@
-package com.huyhieu.postservice.enums;
+package com.huyhieu.common.enums;
 
 public enum Visibility {
   PUBLIC,

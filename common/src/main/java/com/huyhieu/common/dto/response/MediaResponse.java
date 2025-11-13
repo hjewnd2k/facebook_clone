@@ -1,4 +1,4 @@
-package com.huyhieu.postservice.entity;
+package com.huyhieu.common.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Media {
+public class MediaResponse {
   private String type;
   private String url;
 }

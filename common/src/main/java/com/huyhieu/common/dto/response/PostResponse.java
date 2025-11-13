@@ -1,11 +1,10 @@
-package com.huyhieu.postservice.dto.response;
+package com.huyhieu.common.dto.response;
 
-import java.util.List;
-
-import com.huyhieu.postservice.entity.Media;
-import com.huyhieu.postservice.enums.Visibility;
+import com.huyhieu.common.enums.Visibility;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,6 +16,6 @@ public class PostResponse {
   String id;
   String userId;
   String content;
-  List<Media> media;
+  List<MediaResponse> media;
   Visibility visibility;
 }

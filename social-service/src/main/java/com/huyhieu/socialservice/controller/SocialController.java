@@ -15,6 +15,20 @@ import java.util.List;
 public class SocialController {
   private final SocialService socialService;
 
+  @GetMapping("/internal/followers/{userId}")
+  public ApiResponse<List<UserNode>> getFollowersForService(@PathVariable String userId) {
+    return ApiResponse.<List<UserNode>>builder()
+        .result(socialService.findFollowers(userId))
+        .build();
+  }
+
+  @GetMapping("/internal/following/{userId}")
+  public ApiResponse<List<UserNode>> getFollowingForService(@PathVariable String userId) {
+    return ApiResponse.<List<UserNode>>builder()
+        .result(socialService.findFollowing(userId))
+        .build();
+  }
+
   @PostMapping("/follow/{userIdToFollow}")
   public ApiResponse<?> followUser(@PathVariable String userIdToFollow) {
     String currentUserId = CommonUtils.getCurrentUserId();

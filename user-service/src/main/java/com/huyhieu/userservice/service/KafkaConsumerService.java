@@ -2,22 +2,17 @@ package com.huyhieu.userservice.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.huyhieu.common.constants.KafkaTopics;
 import com.huyhieu.userservice.dto.response.AdminEventDto;
-import com.huyhieu.userservice.dto.response.KeycloakEventDto;
 import com.huyhieu.userservice.dto.response.UserRepresentationDto;
-import com.huyhieu.userservice.dto.response.UserResponse;
 import com.huyhieu.userservice.entity.FailedEvent;
-import com.huyhieu.userservice.entity.User;
 import com.huyhieu.userservice.enums.EventStatus;
 import com.huyhieu.userservice.repository.FailedEventRepository;
-import com.huyhieu.userservice.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,7 +24,7 @@ public class KafkaConsumerService {
   UserService userService;
   FailedEventRepository failedEventRepository;
 
-  @KafkaListener(topics = "keycloak_admin_events")
+  @KafkaListener(topics = KafkaTopics.ADMIN_EVENTS)
   public void handleAdminEvent(AdminEventDto event) { // 2. SỬA DTO Ở ĐÂY
     log.info(
         "Nhận được Admin Event: {} cho resource: {}",
@@ -91,7 +86,7 @@ public class KafkaConsumerService {
   }
 
   @KafkaListener(
-      topics = "keycloak_admin_events-dlt",
+      topics = KafkaTopics.ADMIN_EVENTS_DLT,
       groupId = "user-service-dlt-group",
       containerFactory = "dltListenerContainerFactory")
   public void handleDeadLetterTopic(String message) {

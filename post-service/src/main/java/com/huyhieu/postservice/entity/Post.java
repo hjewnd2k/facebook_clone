@@ -1,9 +1,7 @@
 package com.huyhieu.postservice.entity;
 
-import com.huyhieu.common.entity.BaseEntity;
-import com.huyhieu.postservice.enums.Visibility;
+import com.huyhieu.common.enums.Visibility;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;

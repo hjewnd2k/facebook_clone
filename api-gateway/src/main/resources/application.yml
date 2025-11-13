@@ -28,29 +28,28 @@ spring:
                 - Path=/api/v1/posts/**
 
             - id: social_service
-              uri: http://localhost:8083 # (Hoặc social-service:8083)
+              uri: http://localhost:8083
               predicates:
                 - Path=/api/v1/social/**
 
+            - id: news-feed-service
+              uri: http://localhost:8084
+              predicates:
+                - Path=/api/v1/feed/**
+
             # --- CÁC ROUTE SWAGGER (MỚI) ---
-            # Route để lấy api-docs của user-service
             - id: user_service_docs
-              uri: http://localhost:8081 # (Hoặc localhost:8081)
+              uri: http://localhost:8081
               predicates:
                 - Path=/v3/api-docs/user-service
-              filters: # <--- THÊM KHỐI NÀY
-                # Viết lại đường dẫn từ /v3/api-docs/user-service
-                # thành /v3/api-docs
+              filters:
                 - RewritePath=/v3/api-docs/user-service, /v3/api-docs
 
-            # Route để lấy api-docs của post-service
             - id: post_service_docs
-              uri: http://localhost:8082 # (Hoặc localhost:8082)
+              uri: http://localhost:8082
               predicates:
                 - Path=/v3/api-docs/post-service
-              filters: # <--- THÊM KHỐI NÀY
-                # Viết lại đường dẫn từ /v3/api-docs/post-service
-                # thành /v3/api-docs
+              filters:
                 - RewritePath=/v3/api-docs/post-service, /v3/api-docs
 
             - id: social_service_docs
@@ -59,6 +58,13 @@ spring:
                 - Path=/v3/api-docs/social-service
               filters:
                 - RewritePath=/v3/api-docs/social-service, /v3/api-docs
+
+            - id: news-feed-service
+              uri: http://localhost:8084
+              predicates:
+                - Path=/v3/api-docs/news-feed-service
+              filters:
+                - RewritePath=/v3/api-docs/news-feed-service, /v3/api-docs
 
   # --- CẤU HÌNH SWAGGER UI TỔNG HỢP ---
 springdoc:
@@ -76,6 +82,8 @@ springdoc:
         url: /v3/api-docs/post-service
       - name: Social Service
         url: /v3/api-docs/social-service
+      - name: NewFeed Service
+        url: /v3/api-docs/news-feed-service
 
   oauth2: # (Thêm cấu hình OAuth y hệt như của user-service)
     authorization-url: http://localhost:8888/realms/facebook-clone/protocol/openid-connect/auth

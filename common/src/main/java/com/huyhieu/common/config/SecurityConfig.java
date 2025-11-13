@@ -14,6 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
   private static final String[] PUBLIC_APIS = {
     "/api/v1/*/public/**",
+    "/api/v1/*/internal/**",
     "/swagger-ui.html",
     "/swagger-ui/**",
     "/v3/api-docs",
