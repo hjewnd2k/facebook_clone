@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -61,8 +62,8 @@ public class PostController {
         .build();
   }
 
-  @GetMapping("/public/hello")
-  public ApiResponse<String> helloPublic() {
-    return ApiResponse.<String>builder().result("Đây là Post Service!").build();
+  @GetMapping("/internal/{postId}/author")
+  public ResponseEntity<String> getPostAuthorId(@PathVariable String postId) {
+    return ResponseEntity.ok(postService.getPostAuthorId(postId));
   }
 }

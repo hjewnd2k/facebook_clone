@@ -6,6 +6,8 @@ import com.huyhieu.common.dto.response.PageResponse;
 import com.huyhieu.common.dto.response.PostResponse;
 import com.huyhieu.common.dto.response.PostStatsDTO;
 import com.huyhieu.common.enums.Visibility;
+import com.huyhieu.common.exception.AppException;
+import com.huyhieu.common.exception.ErrorCode;
 import com.huyhieu.common.utils.CommonUtils;
 import com.huyhieu.postservice.dto.request.CreatePostRequest;
 import com.huyhieu.postservice.entity.Media;
@@ -22,6 +24,7 @@ import java.util.Map;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,11 +32,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Transactional
 public class PostServiceImpl implements PostService {
   PostRepository postRepository;
   InteractionServiceClient interactionServiceClient;
@@ -154,6 +160,19 @@ public class PostServiceImpl implements PostService {
         .totalElements(postPage.getTotalElements())
         .data(postPage.getContent().stream().map(post -> getPostResponse(post, statsMap)).toList())
         .build();
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public String getPostAuthorId(String postId) {
+    return postRepository
+        .findById(postId) // Tìm trong MongoDB
+        .map(Post::getUserId) // Trích xuất (extract) trường userId
+        .orElseThrow(
+            () -> {
+              log.error("Không tìm thấy Post với ID: {}", postId);
+              throw new AppException(ErrorCode.POST_NOT_FOUND);
+            });
   }
 
   private Post enrichPostWithPresignedUrls(Post post) {

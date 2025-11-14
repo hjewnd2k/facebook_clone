@@ -14,4 +14,6 @@ public interface PostService {
   List<PostResponse> getPostsBatch(List<String> postIds);
 
   PageResponse<PostResponse> getColdFeed(List<String> authorIds, int page, int size);
+
+  String getPostAuthorId(String postId);
 }

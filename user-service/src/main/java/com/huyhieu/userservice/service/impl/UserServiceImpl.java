@@ -65,4 +65,20 @@ public class UserServiceImpl implements UserService {
     log.info("Xử lý DELETE user: {}", userId);
     userRepository.deleteByUserId(userId);
   }
+
+  @Override
+  @Transactional(readOnly = true)
+  public String getUserDisplayName(String userId) {
+    return userRepository
+        .findByUserId(userId)
+        .map(
+            user -> {
+              // Ưu tiên displayName, nếu rỗng thì dùng username
+              if (user.getDisplayName() != null && !user.getDisplayName().isEmpty()) {
+                return user.getDisplayName();
+              }
+              return user.getUsername();
+            })
+        .orElse("Người dùng không xác định");
+  }
 }

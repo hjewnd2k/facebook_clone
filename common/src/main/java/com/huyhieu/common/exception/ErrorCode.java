@@ -13,7 +13,8 @@ public enum ErrorCode {
   UNAUTHENTICATED(1004, "Unauthenticated", HttpStatus.UNAUTHORIZED),
   UNAUTHORIZED(1005, "You do not have permission", HttpStatus.FORBIDDEN),
   UPLOAD_FILE_FAIL(1006, "Upload file fail", HttpStatus.BAD_REQUEST),
-  FILE_NOT_EXIT(1007, "File not exit", HttpStatus.NOT_FOUND);
+  FILE_NOT_EXIT(1007, "File not exit", HttpStatus.NOT_FOUND),
+  POST_NOT_FOUND(1008, "Post not found", HttpStatus.NOT_FOUND);
 
   ErrorCode(int code, String message, HttpStatusCode statusCode) {
     this.code = code;

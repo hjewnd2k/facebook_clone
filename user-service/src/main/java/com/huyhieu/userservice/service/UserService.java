@@ -11,4 +11,6 @@ public interface UserService {
   void updateUserByKeycloakEvent(String userId, UserRepresentationDto userDto);
 
   void deleteUser(String userId);
+
+  String getUserDisplayName(String userId);
 }

@@ -42,6 +42,17 @@ spring:
               predicates:
                 - Path=/api/v1/interactions/**
 
+            - id: notification_service_api
+              uri: http://localhost:8086 # (Hoặc notification-service:8086)
+              predicates:
+                - Path=/api/v1/notifications/**
+
+            - id: notification_service_ws
+              # Dùng 'lb' (load balancer) và 'ws' (websocket)
+              uri: ws://localhost:8086 # (Hoặc ws://notification-service:8086)
+              predicates:
+                - Path=/ws/** # Tất cả request /ws sẽ đi đến đây
+
             # --- CÁC ROUTE SWAGGER (MỚI) ---
             - id: user_service_docs
               uri: http://localhost:8081
@@ -78,6 +89,13 @@ spring:
               filters:
                 - RewritePath=/v3/api-docs/interaction-service, /v3/api-docs
 
+            - id: notification_service_docs
+              uri: http://localhost:8086
+              predicates:
+                - Path=/v3/api-docs/notification-service
+              filters:
+                - RewritePath=/v3/api-docs/notification-service, /v3/api-docs
+
   # --- CẤU HÌNH SWAGGER UI TỔNG HỢP ---
 springdoc:
   swagger-ui:
@@ -98,7 +116,10 @@ springdoc:
         url: /v3/api-docs/news-feed-service
       - name: Interaction Service
         url: /v3/api-docs/interaction-service
-
+      - name: Notification Service
+        url: /v3/api-docs/notification-service
+        
+  
   oauth2: # (Thêm cấu hình OAuth y hệt như của user-service)
     authorization-url: http://localhost:8888/realms/facebook-clone/protocol/openid-connect/auth
     token-url: http://localhost:8888/realms/facebook-clone/protocol/openid-connect/token

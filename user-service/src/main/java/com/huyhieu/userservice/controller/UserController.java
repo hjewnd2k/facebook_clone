@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,5 +35,10 @@ public class UserController {
     return ApiResponse.<String>builder()
         .result("Đây là API public, ai cũng xem được (từ User Service)")
         .build();
+  }
+
+  @GetMapping("/internal/{userId}/display-name")
+  public ResponseEntity<String> getUserDisplayName(@PathVariable String userId) {
+    return ResponseEntity.ok(userService.getUserDisplayName(userId));
   }
 }
