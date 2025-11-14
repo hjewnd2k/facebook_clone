@@ -1,25 +1,23 @@
-package com.huyhieu.postservice;
+package com.huyhieu.interactionservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 
 @SpringBootApplication(
-    scanBasePackages = {"com.huyhieu.postservice", "com.huyhieu.common"},
-    exclude = { // <-- 2. Thêm khối 'exclude' này
+    scanBasePackages = {"com.huyhieu.interactionservice", "com.huyhieu.common"},
+    exclude = {
       DataSourceAutoConfiguration.class,
       JpaRepositoriesAutoConfiguration.class,
       HibernateJpaAutoConfiguration.class
     })
 @EnableMongoAuditing
-@EnableFeignClients
-public class PostServiceApplication {
+public class InteractionServiceApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(PostServiceApplication.class, args);
+    SpringApplication.run(InteractionServiceApplication.class, args);
   }
 }

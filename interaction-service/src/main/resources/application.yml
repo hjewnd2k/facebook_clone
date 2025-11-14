@@ -1,9 +1,5 @@
 server:
-  port: 8082
-
-app:
-  services:
-    interaction-service-url: http://localhost:8085
+  port: 8085
 
 spring:
   security:
@@ -14,20 +10,13 @@ spring:
 
   data:
     mongodb:
-      uri: mongodb://mongoadmin:password@localhost:27017/post_db?authSource=admin
+      uri: mongodb://mongoadmin:password@localhost:27017/interaction_db?authSource=admin
 
   kafka:
     producer:
       bootstrap-servers: localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-
-minio:
-  url: http://localhost:9000
-  access-key: minioadmin
-  secret-key: password
-  bucket-name: facebook-posts
-  expiry: 3600  # 1h
 
 springdoc:
   swagger-ui:

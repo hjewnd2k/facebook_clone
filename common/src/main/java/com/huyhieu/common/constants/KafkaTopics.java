@@ -25,5 +25,15 @@ public final class KafkaTopics {
    */
   public static final String POST_EVENTS = "post_events";
 
-  // (Sau này bạn có thể thêm: NOTIFICATION_EVENTS, CHAT_EVENTS, v.v.)
+  /**
+   * Topic cho các sự kiện Reaction (LIKE, LOVE...). Được gửi bởi: interaction-service Được nghe
+   * bởi: notification-service (tương lai)
+   */
+  public static final String REACTION_EVENTS = "reaction_events";
+
+  /**
+   * Topic cho các sự kiện Comment (Bình luận, Reply). Được gửi bởi: interaction-service Được nghe
+   * bởi: notification-service (tương lai)
+   */
+  public static final String COMMENT_EVENTS = "comment_events";
 }

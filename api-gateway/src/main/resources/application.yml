@@ -37,6 +37,11 @@ spring:
               predicates:
                 - Path=/api/v1/feed/**
 
+            - id: interaction_service
+              uri: http://localhost:8085 # (Hoặc interaction-service:8085)
+              predicates:
+                - Path=/api/v1/interactions/**
+
             # --- CÁC ROUTE SWAGGER (MỚI) ---
             - id: user_service_docs
               uri: http://localhost:8081
@@ -66,6 +71,13 @@ spring:
               filters:
                 - RewritePath=/v3/api-docs/news-feed-service, /v3/api-docs
 
+            - id: interaction_service_docs
+              uri: http://localhost:8085
+              predicates:
+                - Path=/v3/api-docs/interaction-service
+              filters:
+                - RewritePath=/v3/api-docs/interaction-service, /v3/api-docs
+
   # --- CẤU HÌNH SWAGGER UI TỔNG HỢP ---
 springdoc:
   swagger-ui:
@@ -84,6 +96,8 @@ springdoc:
         url: /v3/api-docs/social-service
       - name: NewFeed Service
         url: /v3/api-docs/news-feed-service
+      - name: Interaction Service
+        url: /v3/api-docs/interaction-service
 
   oauth2: # (Thêm cấu hình OAuth y hệt như của user-service)
     authorization-url: http://localhost:8888/realms/facebook-clone/protocol/openid-connect/auth
