@@ -142,6 +142,17 @@ services:
     networks:
       - app-network
 
+  cassandra:
+    platform: linux/amd64
+    image: cassandra:4
+    container_name: cassandra_db
+    ports:
+      - "9042:9042" # Cổng kết nối (CQL)
+    volumes:
+      - cassandra-data:/var/lib/cassandra
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
@@ -151,3 +162,4 @@ volumes:
   mongo-data:
   minio-data:
   neo4j-data:
+  cassandra-data:

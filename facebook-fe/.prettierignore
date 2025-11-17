@@ -1,0 +1,7 @@
+#Ignore artifacts
+node_modules
+
+#Ignore specific files
+pnpm-log.yaml
+yarn.lock
+package-lock.json
