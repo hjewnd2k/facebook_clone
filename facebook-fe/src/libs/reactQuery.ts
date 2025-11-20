@@ -1,29 +1,30 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client';
+
 import {
   useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
-} from "@tanstack/react-query";
+} from '@tanstack/react-query';
 import type {
   InfiniteData,
   QueryFunctionContext,
   UseInfiniteQueryOptions,
   UseMutationOptions,
   UseQueryOptions,
-} from "@tanstack/react-query";
-import { AxiosError, type AxiosRequestConfig } from "axios";
+} from '@tanstack/react-query';
+import { AxiosError, type AxiosRequestConfig } from 'axios';
+import { useSearchParams } from 'next/navigation';
+
 import {
   type API_ROUTE_TYPE,
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
-} from "@/constants";
-import type { IErrorData, IResponse } from "@/types";
-import { pathToUrl } from "@/utils";
+} from '@/constants';
+import type { IErrorData, IResponse } from '@/types';
+import { pathToUrl } from '@/utils';
 
-import api from "./api";
-import { useSearchParams } from "next/navigation";
+import api from './api';
 
 export type QueryKeyT = Readonly<
   | string[]
@@ -44,13 +45,13 @@ export const fetcher = <T>({
 };
 
 type ConfigQueryResult<T> = Partial<
-  Omit<UseQueryOptions<T, AxiosError<IErrorData>, T, QueryKeyT>, "queryFn">
+  Omit<UseQueryOptions<T, AxiosError<IErrorData>, T, QueryKeyT>, 'queryFn'>
 >;
 
 export const useFetch = <T>(
   url: string | null,
   params?: object,
-  config?: ConfigQueryResult<IResponse<T>>
+  config?: ConfigQueryResult<IResponse<T>>,
 ) => {
   const context = useQuery<
     IResponse<T>,
@@ -70,11 +71,11 @@ export const useFetch = <T>(
 export const useFetchList = <T>(
   url: string | null,
   params?: object,
-  config?: ConfigQueryResult<IResponse<T>>
+  config?: ConfigQueryResult<IResponse<T>>,
 ) => {
   const searchParams = useSearchParams();
-  const page = searchParams.get("page") || DEFAULT_PAGE;
-  const limit = searchParams.get("pageSize") || DEFAULT_PAGE_SIZE;
+  const page = searchParams.get('page') || DEFAULT_PAGE;
+  const limit = searchParams.get('pageSize') || DEFAULT_PAGE_SIZE;
 
   return useFetch<IResponse<T>>(
     url,
@@ -83,7 +84,7 @@ export const useFetchList = <T>(
       page,
       limit,
     },
-    config
+    config,
   );
 };
 
@@ -108,21 +109,21 @@ export const infiniteFetcher = <T>({
       page: page,
       limit: pageLimit || 10,
     },
-    { paramsSerializer: { indexes: null } }
+    { paramsSerializer: { indexes: null } },
   );
 };
 
 type ConfigInfiniteQueryResult<T> = Partial<
   Omit<
     UseInfiniteQueryOptions<T, AxiosError<IErrorData>, T, QueryKeyT>,
-    "queryFn" | "getNextPageParam" | "getPreviousPageParam" | "initialPageParam"
+    'queryFn' | 'getNextPageParam' | 'getPreviousPageParam' | 'initialPageParam'
   >
 >;
 
 export const useFetchMore = <T>(
   url: string | null,
   params?: object,
-  config?: ConfigInfiniteQueryResult<T>
+  config?: ConfigInfiniteQueryResult<T>,
 ) => {
   const context = useInfiniteQuery<
     IResponse<T>,
@@ -143,7 +144,7 @@ export const useFetchMore = <T>(
       lastPage: any,
       allPages: any,
       lastPageParam: any,
-      allPageParams: any
+      allPageParams: any,
     ) => {
       return Number(lastPage?.total) >
         allPages?.reduce?.((prev: any, acc: any) => {
@@ -181,7 +182,7 @@ export const usePrefetch = <T>(url: string | null, params?: object) => {
 
 type ConfigMutationResult<T, S> = Omit<
   UseMutationOptions<S, AxiosError<IErrorData>, T | S>,
-  "mutationFn" | "onMutate"
+  'mutationFn' | 'onMutate'
 >;
 
 const useGenericMutation = <T, S>(
@@ -189,7 +190,7 @@ const useGenericMutation = <T, S>(
   url: string,
   params?: object,
   updater?: ((newData: T, oldData: S) => S | undefined) | undefined,
-  config?: ConfigMutationResult<T, S>
+  config?: ConfigMutationResult<T, S>,
 ) => {
   const queryClient = useQueryClient();
 
@@ -222,7 +223,7 @@ export const useDelete = <T extends string | number, S>(
   url: string,
   params?: object,
   updater?: (id: T, oldData: IResponse<S>) => IResponse<S> | undefined,
-  mutateConfig?: ConfigMutationResult<T, IResponse<S>>
+  mutateConfig?: ConfigMutationResult<T, IResponse<S>>,
 ) => {
   return useGenericMutation<T, IResponse<S>>(
     (id) =>
@@ -230,7 +231,7 @@ export const useDelete = <T extends string | number, S>(
     url,
     params,
     updater,
-    mutateConfig
+    mutateConfig,
   );
 };
 
@@ -238,14 +239,14 @@ export const useDeleteById = <T extends object, S>(
   url: API_ROUTE_TYPE,
   params?: object,
   updater?: (id: T, oldData: IResponse<S>) => IResponse<S> | undefined,
-  mutateConfig?: ConfigMutationResult<T, IResponse<S>>
+  mutateConfig?: ConfigMutationResult<T, IResponse<S>>,
 ) => {
   return useGenericMutation<T, IResponse<S>>(
     (ids) => api.delete(pathToUrl(url, ids as any)),
     url,
     params,
     updater,
-    mutateConfig
+    mutateConfig,
   );
 };
 
@@ -254,14 +255,14 @@ export const usePost = <T, S = {}>(
   params?: object,
   updater?: (newData: T, oldData: IResponse<S>) => IResponse<S>,
   config?: AxiosRequestConfig,
-  mutateConfig?: ConfigMutationResult<T, IResponse<S>>
+  mutateConfig?: ConfigMutationResult<T, IResponse<S>>,
 ) => {
   return useGenericMutation<T, IResponse<S>>(
     (data) => api.post(url, data, config?.fileFlag, config),
     url,
     params,
     updater,
-    mutateConfig
+    mutateConfig,
   );
 };
 
@@ -270,20 +271,20 @@ export const usePostById = <T, S = {}>(
   params?: object,
   updater?: (newData: T, oldData: IResponse<S>) => IResponse<S>,
   config?: AxiosRequestConfig,
-  mutateConfig?: ConfigMutationResult<T, IResponse<S>>
+  mutateConfig?: ConfigMutationResult<T, IResponse<S>>,
 ) => {
   return useGenericMutation<T, IResponse<S>>(
-    ({ key = "id", ...data }: any) =>
+    ({ key = 'id', ...data }: any) =>
       api.post(
         pathToUrl(url, { [key]: String(data?.[key]) } as any),
         data,
         config?.fileFlag,
-        config
+        config,
       ),
     url,
     params,
     updater,
-    mutateConfig
+    mutateConfig,
   );
 };
 
@@ -292,14 +293,14 @@ export const usePut = <T, S = {}>(
   params?: object,
   updater?: (newData: T, oldData: IResponse<S>) => IResponse<S>,
   config?: AxiosRequestConfig,
-  mutateConfig?: ConfigMutationResult<T, IResponse<S>>
+  mutateConfig?: ConfigMutationResult<T, IResponse<S>>,
 ) => {
   return useGenericMutation<T, IResponse<S>>(
     (data) => api.put(url, data, config?.fileFlag, config),
     url,
     params,
     updater,
-    mutateConfig
+    mutateConfig,
   );
 };
 export const usePutById = <T, S = {}>(
@@ -307,7 +308,7 @@ export const usePutById = <T, S = {}>(
   params?: object,
   updater?: (newData: T, oldData: IResponse<S>) => IResponse<S>,
   config?: AxiosRequestConfig,
-  mutateConfig?: ConfigMutationResult<T, IResponse<S>>
+  mutateConfig?: ConfigMutationResult<T, IResponse<S>>,
 ) => {
   return useGenericMutation<T, IResponse<S>>(
     (data: any) =>
@@ -315,7 +316,7 @@ export const usePutById = <T, S = {}>(
     url,
     params,
     updater,
-    mutateConfig
+    mutateConfig,
   );
 };
 
@@ -324,14 +325,14 @@ export const usePatch = <T, S = {}>(
   params?: object,
   updater?: (newData: T, oldData: IResponse<S>) => IResponse<S>,
   config?: AxiosRequestConfig,
-  mutateConfig?: ConfigMutationResult<T, IResponse<S>>
+  mutateConfig?: ConfigMutationResult<T, IResponse<S>>,
 ) => {
   return useGenericMutation<T, IResponse<S>>(
     (data) => api.patch(url, data, config?.fileFlag, config),
     url,
     params,
     updater,
-    mutateConfig
+    mutateConfig,
   );
 };
 export const usePatchById = <T, S = {}>(
@@ -339,19 +340,19 @@ export const usePatchById = <T, S = {}>(
   params?: object,
   updater?: (newData: T, oldData: IResponse<S>) => IResponse<S>,
   config?: AxiosRequestConfig,
-  mutateConfig?: ConfigMutationResult<T, IResponse<S>>
+  mutateConfig?: ConfigMutationResult<T, IResponse<S>>,
 ) => {
   return useGenericMutation<T, IResponse<S>>(
-    ({ key = "id", ...data }: any) =>
+    ({ key = 'id', ...data }: any) =>
       api.patch(
         pathToUrl(url, { [key]: String(data?.[key]) } as any),
         data,
         config?.fileFlag,
-        config
+        config,
       ),
     url,
     params,
     updater,
-    mutateConfig
+    mutateConfig,
   );
 };

@@ -1,15 +1,16 @@
-"use client";
+'use client';
 
-import React from "react";
-import KeycloakProvider from "./KeycloakProvider";
-import QueryProvider from "./QueryProvider";
-import AxiosInitializer from "./AxiosInitializer";
+import React from 'react';
+
+import KeycloakProvider from './KeycloakProvider';
+import QueryProvider from './QueryProvider';
+import UserLoader from './UserLoader';
 
 const RootProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <QueryProvider>
       <KeycloakProvider>
-        <AxiosInitializer />
+        <UserLoader />
         {children}
       </KeycloakProvider>
     </QueryProvider>

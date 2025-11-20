@@ -15,6 +15,10 @@ spring:
       group-id: notification-group
       auto-offset-reset: earliest
 
+  mvc:
+    cors:
+      enabled: false
+
 app:
   services:
     post-service-url: http://localhost:8082

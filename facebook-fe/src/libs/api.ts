@@ -1,14 +1,12 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// lib/api.ts
-import type { AxiosRequestConfig } from "axios";
-import axiosInstance from "./axios"; // ← Dùng instance có Keycloak
+import type { AxiosRequestConfig } from 'axios';
+
+import axiosInstance from './axios';
 
 const api = {
   get: async <ReturnType, QueryParamType = any>(
     url: string,
     params?: QueryParamType,
-    config: AxiosRequestConfig = {}
+    config: AxiosRequestConfig = {},
   ): Promise<ReturnType> =>
     axiosInstance
       .get<ReturnType>(url, { params, ...config })
@@ -18,7 +16,7 @@ const api = {
     url: string,
     body: BodyType,
     fileFlag = false,
-    config: AxiosRequestConfig = {}
+    config: AxiosRequestConfig = {},
   ): Promise<ReturnType> =>
     axiosInstance
       .post(url, body, { fileFlag, ...config })
@@ -28,7 +26,7 @@ const api = {
     url: string,
     body: BodyType,
     fileFlag = false,
-    config: AxiosRequestConfig = {}
+    config: AxiosRequestConfig = {},
   ): Promise<ReturnType> =>
     axiosInstance
       .patch(url, body, { fileFlag, ...config })
@@ -38,7 +36,7 @@ const api = {
     url: string,
     body: BodyType,
     fileFlag = false,
-    config: AxiosRequestConfig = {}
+    config: AxiosRequestConfig = {},
   ): Promise<ReturnType> =>
     axiosInstance
       .put(url, body, { fileFlag, ...config })
@@ -46,7 +44,7 @@ const api = {
 
   delete: async <BodyType, ReturnType = {}>(
     url: string,
-    body?: BodyType
+    body?: BodyType,
   ): Promise<ReturnType> =>
     axiosInstance.delete(url, { data: body }).then((res) => res.data),
 };

@@ -14,6 +14,10 @@ spring:
       username: neo4j
       password: password
 
+  mvc:
+    cors:
+      enabled: false
+
 springdoc:
   swagger-ui:
     oauth:

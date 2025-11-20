@@ -5,6 +5,7 @@ import com.huyhieu.common.dto.response.PageResponse;
 import com.huyhieu.common.dto.response.PostStatsDTO;
 import com.huyhieu.common.enums.ReactionType;
 import com.huyhieu.interactionservice.dto.request.CommentRequest;
+import com.huyhieu.interactionservice.dto.request.ReactRequest;
 import com.huyhieu.interactionservice.dto.response.CommentResponse;
 import com.huyhieu.interactionservice.service.CommentService;
 import com.huyhieu.interactionservice.service.ReactionService;
@@ -28,9 +29,9 @@ public class InteractionController {
   // === API 1: React một bài đăng ===
   @PostMapping("/posts/{postId}/react")
   public ApiResponse<?> reactToPost(
-      @PathVariable String postId, @RequestParam ReactionType reactionType) {
+      @PathVariable String postId, @RequestBody ReactRequest request) {
 
-    reactionService.reactToPost(postId, reactionType);
+    reactionService.reactToPost(postId, request.getReactionType());
     // TODO: Gửi event KAFKA "POST_REACTED"
     return ApiResponse.builder().message("React thành công").build();
   }

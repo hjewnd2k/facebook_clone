@@ -4,6 +4,7 @@ import com.huyhieu.common.enums.Visibility;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.Instant;
 import java.util.List;
 
 @Getter
@@ -14,11 +15,14 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PostResponse {
   String id;
-  String userId;
+  UserResponse userResponse;
   String content;
   List<MediaResponse> media;
   Visibility visibility;
 
   long likeCount;
   long commentCount;
+
+  Instant createdDate;
+  Instant updatedDate;
 }

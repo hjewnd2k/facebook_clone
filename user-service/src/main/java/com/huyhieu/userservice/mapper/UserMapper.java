@@ -1,7 +1,7 @@
 package com.huyhieu.userservice.mapper;
 
+import com.huyhieu.common.dto.response.UserResponse;
 import com.huyhieu.userservice.dto.request.UserRequest;
-import com.huyhieu.userservice.dto.response.UserResponse;
 import com.huyhieu.userservice.entity.User;
 import org.mapstruct.Mapper;
 

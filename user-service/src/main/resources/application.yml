@@ -31,6 +31,10 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
+  mvc:
+    cors:
+      enabled: false
+
 springdoc: # <--- THÊM KHỐI NÀY
   swagger-ui:
     oauth:

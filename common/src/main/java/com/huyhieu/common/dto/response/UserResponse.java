@@ -1,4 +1,4 @@
-package com.huyhieu.userservice.dto.response;
+package com.huyhieu.common.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

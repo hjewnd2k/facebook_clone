@@ -1,7 +1,7 @@
 package com.huyhieu.userservice.service.impl;
 
+import com.huyhieu.common.dto.response.UserResponse;
 import com.huyhieu.userservice.dto.response.UserRepresentationDto;
-import com.huyhieu.userservice.dto.response.UserResponse;
 import com.huyhieu.userservice.entity.User;
 import com.huyhieu.userservice.mapper.UserMapper;
 import com.huyhieu.userservice.repository.UserRepository;
@@ -12,6 +12,10 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,6 +28,16 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserResponse getMyInfo(String userId) {
+    User userProfile =
+        userRepository
+            .findByUserId(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    return userMapper.toUserResponse(userProfile);
+  }
+
+  @Override
+  public UserResponse getByUserId(String userId) {
     User userProfile =
         userRepository
             .findByUserId(userId)
@@ -80,5 +94,12 @@ public class UserServiceImpl implements UserService {
               return user.getUsername();
             })
         .orElse("Người dùng không xác định");
+  }
+
+  @Override
+  public Map<String, UserResponse> getBatchUserInfos(List<String> userIds) {
+    List<User> users = userRepository.findAllByUserIdIn(userIds);
+
+    return users.stream().collect(Collectors.toMap(User::getUserId, userMapper::toUserResponse));
   }
 }

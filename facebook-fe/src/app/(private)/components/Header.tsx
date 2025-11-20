@@ -1,4 +1,7 @@
+'use client';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
+import { useKeycloak } from '@react-keycloak/web';
 import {
   Bell,
   Gamepad2,
@@ -10,6 +13,7 @@ import {
   UsersRound,
 } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 import { FacebookIcon } from '@/assets/svgs';
 import { Button } from '@/components/ui/button';
@@ -22,10 +26,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import { useUserStore } from '@/stores/user.store';
 
 const Header = () => {
+  const { user } = useUserStore();
+  const pathname = usePathname();
+
+  console.log({ pathname });
+
   const tabs = [
     { url: '/', label: 'Home', icon: <House /> },
     { url: '/watch', label: 'Watch', icon: <MonitorPlay /> },
@@ -38,7 +47,7 @@ const Header = () => {
     <header
       className={cn(
         'fixed top-0 left-0 flex h-(--header-height) w-full items-center justify-between bg-white shadow',
-        'px-4',
+        'z-50 px-4',
       )}
     >
       <div className="flex flex-1 items-center gap-2">
@@ -46,17 +55,25 @@ const Header = () => {
           href={'/'}
           className="flex size-10 items-center justify-center rounded-full"
         >
-          <FacebookIcon className="fill-blue-500" />
+          <FacebookIcon className="fill-blue-700" />
         </Link>
         <Input placeholder="Tìm kiếm trên Facebook" className="max-w-50" />
       </div>
-      <div defaultValue="home">
+      <ul className="flex">
         {tabs.map((tab) => (
-          <Button key={tab.url} asChild variant={'ghost'} size={'icon-lg'}>
-            <Link href={tab.url}>{tab.icon}</Link>
-          </Button>
+          <li
+            key={tab.url}
+            className={cn(
+              pathname === tab.url &&
+                'border-b-2 border-blue-500 text-blue-500',
+            )}
+          >
+            <Button asChild variant={'ghost'} size={'header'}>
+              <Link href={tab.url}>{tab.icon}</Link>
+            </Button>
+          </li>
         ))}
-      </div>
+      </ul>
       <div className="flex flex-1 items-center justify-end gap-2">
         <Button variant={'secondary'} className="size-10 rounded-full">
           <List />
@@ -76,7 +93,7 @@ const Header = () => {
                   className="rounded-full"
                   src="https://github.com/shadcn.png"
                 />
-                <AvatarFallback>CN</AvatarFallback>
+                <AvatarFallback>{user?.displayName}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>

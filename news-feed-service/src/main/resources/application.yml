@@ -24,10 +24,16 @@ spring:
         spring.json.trusted.packages: "*"
         spring.json.value.default.type: com.huyhieu.common.dto.event.PostCreatedEvent
 
+  mvc:
+    cors:
+      enabled: false
+
 app:
   services:
     social-service-url: http://localhost:8083
     post-service-url: http://localhost:8082
+
+
 
 springdoc:
   swagger-ui:

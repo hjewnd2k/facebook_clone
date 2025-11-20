@@ -2,9 +2,11 @@ package com.huyhieu.postservice.service.impl;
 
 import com.huyhieu.common.constants.KafkaTopics;
 import com.huyhieu.common.dto.event.PostCreatedEvent;
+import com.huyhieu.common.dto.request.UserIdsRequest;
 import com.huyhieu.common.dto.response.PageResponse;
 import com.huyhieu.common.dto.response.PostResponse;
 import com.huyhieu.common.dto.response.PostStatsDTO;
+import com.huyhieu.common.dto.response.UserResponse;
 import com.huyhieu.common.enums.Visibility;
 import com.huyhieu.common.exception.AppException;
 import com.huyhieu.common.exception.ErrorCode;
@@ -15,6 +17,7 @@ import com.huyhieu.postservice.entity.Post;
 import com.huyhieu.postservice.mapper.PostMapper;
 import com.huyhieu.postservice.repository.InteractionServiceClient;
 import com.huyhieu.postservice.repository.PostRepository;
+import com.huyhieu.postservice.repository.UserServiceClient;
 import com.huyhieu.postservice.service.FileStorageService;
 import com.huyhieu.postservice.service.PostService;
 import java.util.ArrayList;
@@ -43,8 +46,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class PostServiceImpl implements PostService {
   PostRepository postRepository;
   InteractionServiceClient interactionServiceClient;
-  PostMapper postMapper;
   FileStorageService fileStorageService;
+  UserServiceClient userServiceClient;
+  PostMapper postMapper;
   KafkaTemplate<String, Object> kafkaTemplate;
 
   @Override
@@ -98,8 +102,18 @@ public class PostServiceImpl implements PostService {
     Map<String, PostStatsDTO> statsMap =
         interactionServiceClient.getBatchPostStats(postIds).getResult();
 
+    List<String> uniqueUserIds =
+        pageData.getContent().stream().map(Post::getUserId).distinct().toList();
+
+    Map<String, UserResponse> userMap =
+        uniqueUserIds.isEmpty()
+            ? Map.of()
+            : userServiceClient.getBatchUserInfos(new UserIdsRequest(uniqueUserIds)).getResult();
+
     List<PostResponse> posts =
-        pageData.stream().map(post -> getPostResponse(post, statsMap)).toList();
+        pageData.stream()
+            .map(post -> getPostResponse(post, userMap.get(post.getUserId()), statsMap))
+            .toList();
 
     return PageResponse.<PostResponse>builder()
         .currentPage(page)
@@ -121,21 +135,35 @@ public class PostServiceImpl implements PostService {
     Map<String, PostStatsDTO> statsMap =
         interactionServiceClient.getBatchPostStats(postIds).getResult();
 
+    List<String> uniqueUserIds = posts.stream().map(Post::getUserId).distinct().toList();
+
+    Map<String, UserResponse> userMap =
+        uniqueUserIds.isEmpty()
+            ? Map.of()
+            : userServiceClient.getBatchUserInfos(new UserIdsRequest(uniqueUserIds)).getResult();
+
     return posts.stream()
         .map(
             post -> {
-              return getPostResponse(post, statsMap);
+              return getPostResponse(post, userMap.get(post.getUserId()), statsMap);
             })
         .toList();
   }
 
   @NotNull
-  private PostResponse getPostResponse(Post post, Map<String, PostStatsDTO> statsMap) {
+  private PostResponse getPostResponse(
+      Post post, UserResponse userResponse, Map<String, PostStatsDTO> statsMap) {
     Post enrichedPost = enrichPostWithPresignedUrls(post);
     PostResponse response = postMapper.toPostResponse(enrichedPost);
     PostStatsDTO stats = statsMap.get(post.getId());
+    if (stats == null) {
+      stats = PostStatsDTO.builder().likeCount(0).commentCount(0).build();
+    }
     response.setLikeCount(stats.getLikeCount());
     response.setCommentCount(stats.getCommentCount());
+
+    response.setUserResponse(userResponse);
+
     return response;
   }
 
@@ -145,10 +173,19 @@ public class PostServiceImpl implements PostService {
       return PageResponse.<PostResponse>builder().build();
     }
 
-    Pageable sortedPageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+    Pageable sortedPageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
 
     Page<Post> postPage =
         postRepository.findByUserIdInAndVisibility(authorIds, Visibility.PUBLIC, sortedPageable);
+
+    // 3. Lấy danh sách userId (duy nhất) từ các bài đăng đã truy vấn
+    List<String> uniqueUserIds =
+        postPage.getContent().stream().map(Post::getUserId).distinct().toList();
+
+    Map<String, UserResponse> userMap =
+        uniqueUserIds.isEmpty()
+            ? Map.of()
+            : userServiceClient.getBatchUserInfos(new UserIdsRequest(uniqueUserIds)).getResult();
 
     Map<String, PostStatsDTO> statsMap =
         interactionServiceClient.getBatchPostStats(authorIds).getResult();
@@ -158,7 +195,14 @@ public class PostServiceImpl implements PostService {
         .pageSize(postPage.getSize())
         .totalPages(postPage.getTotalPages())
         .totalElements(postPage.getTotalElements())
-        .data(postPage.getContent().stream().map(post -> getPostResponse(post, statsMap)).toList())
+        .data(
+            postPage.getContent().stream()
+                .map(
+                    post -> {
+                      UserResponse userResponse = userMap.get(post.getUserId());
+                      return getPostResponse(post, userResponse, statsMap);
+                    })
+                .toList())
         .build();
   }
 
